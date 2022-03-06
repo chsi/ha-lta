@@ -21,9 +21,14 @@ CONF_API_KEY = "api_key"
 CONF_BUS_STOPS = "bus_stops"
 CONF_CODE = "code"
 CONF_BUSES = "buses"
+CONF_STATE_ARR = "enable_arr_state"
+CONF_STATE_ARR_DEFAULT = True
+CONF_STATE_NA = "enable_na_state"
+CONF_STATE_NA_DEFAULT = True
 
 BUS_ARRIVING = "ARR"
 BUS_UNAVAILABLE = "NA"
+BUS_UNAVAILABLE_NUMERIC = 999
 
 BUS_SCHEMA = {
     vol.Required(CONF_CODE): cv.string,
@@ -34,6 +39,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_API_KEY): cv.string,
         vol.Required(CONF_BUS_STOPS): vol.All(cv.ensure_list, [vol.Schema(BUS_SCHEMA)]),
+        vol.Optional(CONF_STATE_ARR, default=CONF_STATE_ARR_DEFAULT): cv.boolean,
+        vol.Optional(CONF_STATE_NA, default=CONF_STATE_NA_DEFAULT): cv.boolean,
     }
 )
 
@@ -54,12 +61,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
                 time_diff_formatted = round(time_diff.total_seconds() / 60)
 
-                if time_diff_formatted <= 1:
+                if time_diff_formatted <= 1 and config.get(CONF_STATE_ARR):
                     return BUS_ARRIVING
                 else:
                     return time_diff_formatted
             else:
-                return BUS_UNAVAILABLE
+                if config.get(CONF_STATE_NA):
+                    return BUS_UNAVAILABLE
+                else:
+                    return BUS_UNAVAILABLE_NUMERIC
 
         bus_dict = {
             "unique_id": f"{bus_stop}_{bus_number}_{bus_order}",
