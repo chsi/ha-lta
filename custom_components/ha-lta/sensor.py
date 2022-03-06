@@ -96,10 +96,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                         config.get(CONF_API_KEY), bus_stop["code"]
                     )
 
-                    for bus in data:
-                        """Loop through retrieved data and filter by configured buses."""
-                        if bus["ServiceNo"] in list(bus_stop["buses"]):
+                    for bus_no in list(bus_stop["buses"]):
+                        bus_data_filtered = [bus['ServiceNo'] == bus_no for bus in data]
 
+                        if bus_data_filtered:
+                        # found given bus no. in returned data
+                            bus = bus_data_filtered[0]
                             """Create entity for 1st timing."""
                             sensors.append(
                                 create_bus_sensor(
@@ -135,7 +137,42 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                                     bus["NextBus3"]["EstimatedArrival"],
                                 )
                             )
+                        else:
+                            # bus no. not found in returned data, create placeholder sensors
+                            sensors.append(
+                                create_bus_sensor(
+                                    bus_stop["code"],
+                                    bus_no,
+                                    "1",
+                                    0,
+                                    0,
+                                    None,
+                                )
+                            )
 
+                            """Create entity for 2nd timing."""
+                            sensors.append(
+                                create_bus_sensor(
+                                    bus_stop["code"],
+                                    bus_no,
+                                    "2",
+                                    0,
+                                    0,
+                                    None,
+                                )
+                            )
+
+                            """Create entity for 3rd timing."""
+                            sensors.append(
+                                create_bus_sensor(
+                                    bus_stop["code"],
+                                    bus_no,
+                                    "3",
+                                    0,
+                                    0,
+                                    None,
+                                )
+                            )
             except Exception as e:
                 _LOGGER.error(e, "An exeption has occurred")
 
