@@ -33,6 +33,8 @@ Add the following to your `configuration.yaml` file and restart Home Assistant t
 sensor:
 - platform: lta
   api_key: XXXXXXXXXX
+  enable_arr_state: True
+  enable_na_state: True
   bus_stops:
   - code: 'XXXXX'
     buses:
