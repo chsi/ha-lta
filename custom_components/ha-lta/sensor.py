@@ -97,7 +97,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                     )
 
                     for bus_no in list(bus_stop["buses"]):
-                        bus_data_filtered = [bus['ServiceNo'] == bus_no for bus in data]
+                        bus_data_filtered = [bus for bus in data if bus['ServiceNo'] == bus_no]
 
                         if bus_data_filtered:
                         # found given bus no. in returned data
